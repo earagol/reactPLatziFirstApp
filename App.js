@@ -21,7 +21,9 @@ import API from './src/utils/api'
 import CategoryList from './src/videos/containers/Category-list';
 import Player from './src/players/containers/Player'
 import { Provider } from 'react-redux'
-import store from './src/store'
+import { PersistGate } from 'redux-persist/integration/react'
+import { store, persistor } from './src/store'
+import Loading from './src/sections/components/Loading'
 
 
 
@@ -33,13 +35,6 @@ export default class App extends Component {
 
   async componentDidMount() {
     const categoryList = await API.getSuggestion(10)
-    const suggestionList = await API.getMovies()
-    // console.log(movies)
-    // console.log(categorias)
-    // this.setState({
-    //   suggestionList: movies,
-    //   categoryList: categorias
-    // })
     store.dispatch({
       type: 'SET_CATEGORY_LIST',
       payload: {
@@ -47,14 +42,20 @@ export default class App extends Component {
       }
     })
 
+    const suggestionList = await API.getMovies()
     store.dispatch({
       type: 'SET_SUGGESTION_LIST',
       payload: {
         suggestionList
       }
     })
-
-
+    // console.log(movies)
+    // console.log(categorias)
+    //Antes de redux
+    // this.setState({
+    //   suggestionList: movies,
+    //   categoryList: categorias
+    // })
   }
 
   render(){
@@ -62,12 +63,17 @@ export default class App extends Component {
       <Provider
         store={store}
       >
-        <Home>
-          <Header />
-          <Player />
-          <CategoryList />
-          <SuggestionList />
-        </Home>
+        <PersistGate
+          loading={ <Loading />}
+          persistor={persistor}
+        >
+          <Home>
+            <Header />
+            <Player />
+            <CategoryList />
+            <SuggestionList />
+          </Home>
+        </PersistGate>
       </Provider>
     )
   }
